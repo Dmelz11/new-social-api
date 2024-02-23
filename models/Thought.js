@@ -22,7 +22,7 @@ const thoughtSchema = new Schema(
     },
     {
         toJSON: {
-            virtuals: true,
+            getters: true,
         },
         id: false,
     }
@@ -31,7 +31,7 @@ const thoughtSchema = new Schema(
 thoughtSchema
 .virtual('getReactions')
 // using getter
-getComputedStyle(function() {
+.get(function() {
     return this.reaction.length;
 });
 

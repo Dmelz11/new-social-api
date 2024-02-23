@@ -1,6 +1,6 @@
 const {Thought, User} = require('../models');
 
-module.exports ={
+module.exports = {
 
     //getting all thoughts
     async getThoughts(req, res) {
@@ -130,5 +130,4 @@ async removeReaction(req, res) {
 },
 };
 
-module.exports = thoughtController;
     
