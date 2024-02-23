@@ -1,8 +1,9 @@
 const { User, Thought } = require("../models");
 
-// getting users
-module.exports = {
-  async getUser(req, res) {
+// creating the userController variable
+const userController = {
+  // getting users
+  async getUsers(req, res) {
     try {
       const user = await User.find().select("-__v")
 
@@ -15,7 +16,8 @@ module.exports = {
   // get a single user by id
   async getSingleUser(req, res) {
     try {
-      const user = await User.findOne({ _id: req.params.userId });
+      const user = await User.findOne({ _id: req.params.userId })
+      .select('-__v')
 
       if (!user) {
         return res.status(404).json({ message: "No user with that id" });
