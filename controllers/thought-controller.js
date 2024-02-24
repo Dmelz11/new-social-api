@@ -1,12 +1,14 @@
-const {Thought, User} = require('../models');
+const { Thought, User } = require('../models');
 
 module.exports = {
 
     //getting all thoughts
     async getThoughts(req, res) {
      try {
-        const thoughts = await Thought.find();
-        res.json(thoughts);
+        const thought = await Thought.find()
+        .sort({ createdAt: -1});
+
+        res.json(thought);
       } catch (err) {
         res.status(500).json(err);
   }
@@ -20,13 +22,15 @@ module.exports = {
         if (!thought) {
             return res.status(404).json({message: 'No thought with that id.'});
         }
-        res.json(application);
+        res.json(thought);
       } catch (err) {
+        console.log(err);
         res.status(500).json(err);
         }
     },
 
-    //function to create new thought
+    //function to create new thought by associating 
+    //the thought body to the user's ID with a newly generated thoughtID
     async createThought(req, res) {
         try {
           const thought = await Thought.create(req.body);
@@ -36,11 +40,10 @@ module.exports = {
             {new: true}
           );
           if (!user) {
-            return res.status(404).json({message:'Thought created, but no user found with that id'
-            })
+            return res.status(404).json({message:'Thought created, but no user found with that id'});
           }
 
-          res.json('Thought created!');
+          res.json({message:'Thought created!'});
         } catch (err) {
           console.log(err);
           res.status(500).json(err);  
@@ -49,27 +52,28 @@ module.exports = {
 
     //using the findOneAndUpdate method to update thought. Using id param and validation
     async updateThought(req, res) {
-      try {
         const thought = await Thought.findOneAndUpdate(
             { _id: req.params.thoughtId },
             { $set: req.body },
-            { runValidators: true, new: true }
-        );
+            { runValidators: true, new: true });
+
         if (!thought) {
             return res.status(404).json({ message: 'No thought with that id'});
         }
 
         res.json(thought);
-      } catch (err) {
+
         console.log(err);
         res.status(500).json(err);
-      }
-    },
+      },  
+  
 
     // finds and deletes thoughts from database by id
+    // Then the user's thought db is updated to reflect the removed thought id.
 async deleteThought(req, res) {
-  try {
-    const thought = await Thought.findOneAndRemove({_id: req.params.thoughtId});
+    try {
+    const thought = await Thought.findOneAndDelete(
+      {_id: req.params.thoughtId});
 
     if (!thought) {
       return res.status(404).json({message: 'No thought with that id'});
@@ -79,22 +83,24 @@ async deleteThought(req, res) {
     const user = await User.findOneAndUpdate(
       { thoughts: req.params.thoughtId },
       { $pull: {thoughts: req.params.thoughtId} },
-      { new: true }
-    );
+      { new: true });
 
     if (!user) {
-      return res.status(404).json({message: 'Thought is created, but there is no user with that id'});
+      return res.status(404).json({ message: 'Unable to find user by ID'});
     }
-    res.json({message: 'Thought was successfully created!'});
+    
+
+    res.json({message: 'Thought was successfully deleted!'});
   } catch (err) {
     console.log(err);
+    res.status(500).json(err);
   }
 },
-// adding a reaction to a user thought
+// adding a reaction to a user thought by adding reaction body to thought with the $addToSet operator
 async addReaction(req,res) {
   try {
     const thought = await Thought.findOneAndUpdate(
-      {_id: req.params.thoughtId },
+      { _id: req.params.thoughtId },
       { $addToSet: { reactions: req.body }},
       { runValidators: true, new: true}
     );
@@ -103,13 +109,13 @@ async addReaction(req,res) {
       return res.status(404).json({message: 'No thought with that id'});
     }
 
-    res.json(Thought);
+    res.json(thought);
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
    }
   },
-  // deleting a reaction from a thought
+  // deleting a reaction from a thought by finding the thought by its ID. then removes the reactionId from the thought. 
 async removeReaction(req, res) {
   try {
     const thought = await Thought.findOneAndUpdate(
@@ -126,8 +132,9 @@ async removeReaction(req, res) {
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
-  }
-},
+   }
+ },
 };
 
-    
+
+ 

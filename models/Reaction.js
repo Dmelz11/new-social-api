@@ -1,15 +1,16 @@
 const {Schema, Types} = require('mongoose');
+
 //setting values for 'getting' reaction data
 const reactionSchema = new Schema(
     {
         reactionId: {
           type: Schema.Types.ObjectId,
-          default: () => new Types.ObjectId(),      
+          default: () => new Types.ObjectId()      
         },
         reactionBody: {
             type: String,
             required: true,
-            maxlength: 200
+            maxlength: 280
         },
         username: {
             type: String,
@@ -18,7 +19,8 @@ const reactionSchema = new Schema(
         createdAt: {
             type: Date,
             default: Date.now,
-        },
+         
+        }
     },
     {
         toJSON: {

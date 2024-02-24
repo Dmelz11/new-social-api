@@ -7,12 +7,13 @@ const thoughtSchema = new Schema(
      thoughtText: {
         type: String,
         required:'Please leave a thought',
-        minlength: 2,
-        maxlength: 200
+        minlength: 1,
+        maxlength: 280
      },
      createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now,
+       
      },
      username: {
         type: String,
@@ -28,13 +29,12 @@ const thoughtSchema = new Schema(
     }
 );
 // creating virtual property of 'reactions'to get reaction to user thoughts 
-thoughtSchema
-.virtual('getReactions')
+thoughtSchema.virtual('reactionCount')
 // using getter
 .get(function() {
     return this.reactions.length;
 });
 
-const Thought = model('thought', thoughtSchema);
+const Thought = model('Thought', thoughtSchema);
 
 module.exports = Thought;
